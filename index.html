@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Make.com Clone — Interactive</title>
+  <style>
+    :root {
+      --primary: #6c5ce7;
+      --light: #f8f9fa;
+      --gray: #e9ecef;
+      --border: #dee2e6;
+      --sidebar-bg: #f5f7fa;
+      --hover: #e0e7ff;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .app-container {
+      display: flex;
+      gap: 16px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .sidebar {
+      width: 72px;
+      background: var(--sidebar-bg);
+      border-radius: 12px;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      flex-shrink: 0;
+    }
+
+    .sidebar-icon {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 20px;
+    }
+    .sidebar-icon:hover {
+      background: var(--hover);
+      transform: scale(1.05);
+    }
+    .sidebar-icon.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .dashboard {
+      flex: 1;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      padding: 16px 20px;
+      background: linear-gradient(to right, #6c5ce7, #a8edea);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .header-title { font-size: 18px; font-weight: 600; }
+    .header-date { font-size: 13px; opacity: 0.9; }
+
+    .search-bar {
+      background: rgba(255,255,255,0.9);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #333;
+      flex: 1;
+      max-width: 300px;
+      margin: 0 16px;
+    }
+    .search-bar input {
+      background: transparent;
+      border: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .notifications { margin-left: 8px; font-size: 20px; }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .profile-section {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--light);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .profile-pic {
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+      font-size: 18px;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+    .user-info h3 { margin: 0; font-size: 17px; color: #333; }
+    .user-info p { margin: 4px 0 0; color: #666; font-size: 14px; }
+
+    .edit-btn, .save-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      transition: background 0.2s, opacity 0.2s;
+      height: 44px;
+      min-width: 80px;
+    }
+    .edit-btn:hover, .save-btn:hover {
+      background: #5a4bd3;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group { margin-bottom: 0; }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      background: white;
+      min-height: 48px;
+      transition: border 0.2s, background 0.2s;
+    }
+
+    input[readonly], select[readonly] {
+      background: #fafafa;
+      color: #666;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    .email-list {
+      margin-top: 16px;
+    }
+    .email-list h4 {
+      margin: 0 0 12px 0;
+      color: #333;
+      font-size: 16px;
+    }
+
+    .email-item {
+      background: var(--light);
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid var(--border);
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .email-item input {
+      background: white;
+      font-size: 15px;
+    }
+
+    .email-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #555;
+      font-size: 14px;
+    }
+    .btn-icon:hover { background: #f0f0f0; }
+
+    .add-email {
+      background: #e9ecef;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      transition: background 0.2s;
+      min-height: 48px;
+    }
+    .add-email:hover {
+      background: #d0d5dd;
+    }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: var(--sidebar-bg);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0;
+      z-index: 100;
+    }
+
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+      font-size: 12px;
+      min-width: 60px;
+    }
+    .mobile-nav-item:hover { background: var(--hover); }
+    .mobile-nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+    .mobile-nav-item i { font-size: 20px; }
+
+    @media (max-width: 768px) {
+      .app-container { flex-direction: column; }
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .header { padding: 14px 16px; }
+      .profile-section { flex-direction: column; text-align: center; }
+      .user-info { order: -1; }
+      .edit-btn, .save-btn {
+        align-self: center;
+        width: 100%;
+        max-width: 200px;
+      }
+      .search-bar { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .header-left { gap: 2px; }
+      .header-title { font-size: 16px; }
+      .header-date { font-size: 12px; }
+      .email-item { flex-direction: column; text-align: left; gap: 6px; }
+      .email-item > span:last-child { align-self: flex-end; }
+      body { padding: 8px; }
+      .content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="sidebar-icon active">🏠</div>
+      <div class="sidebar-icon">📊</div>
+      <div class="sidebar-icon">⚙️</div>
+      <div class="sidebar-icon">👤</div>
+      <div class="sidebar-icon">❓</div>
+    </div>
+
+    <div class="dashboard">
+      <div class="header">
+        <div class="header-left">
+          <div class="header-title">Welcome, Amanda</div>
+          <div class="header-date">Wed, 03 Dec 2025</div>
+        </div>
+        <div class="search-bar">
+          <span>🔍</span>
+          <input type="text" placeholder="Search scenarios, templates..." />
+          <span class="notifications">🔔</span>
+        </div>
+        <div class="avatar">a</div>
+      </div>
+
+      <div class="content">
+        <div class="profile-section">
+          <div class="profile-pic">A</div>
+          <div class="user-info">
+            <h3 id="userName">Alexa Rawles</h3>
+            <p id="userEmail">alexarawles@gmail.com</p>
+          </div>
+          <button id="editBtn" class="edit-btn">Edit</button>
+        </div>
+
+        <div class="form-grid" id="profileForm">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="fullName" value="Alexa Rawles" readonly />
+          </div>
+          <div class="form-group">
+            <label>Nick Name</label>
+            <input type="text" id="nickName" value="Alex" readonly />
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="gender" disabled>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="nonbinary">Non-binary</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <select id="country" disabled>
+              <option value="us">United States</option>
+              <option value="ca">Canada</option>
+              <option value="uk">United Kingdom</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Language</label>
+            <select id="language" disabled>
+              <option value="en">English</option>
+              <option value="es">Spanish</option>
+              <option value="fr">French</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Time Zone</label>
+            <select id="timezone" disabled>
+              <option value="est">UTC-5 (EST)</option>
+              <option value="gmt">UTC+0 (GMT)</option>
+              <option value="msk">UTC+3 (MSK)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="email-list">
+          <h4>My email addresses</h4>
+          <div id="emailList">
+            <div class="email-item">
+              <span>📧 <span id="primaryEmail">alexarawles@gmail.com</span></span>
+              <span>Primary</span>
+            </div>
+          </div>
+          <button id="addEmailBtn" class="add-email">+ Add Email Address</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile-nav">
+    <div class="mobile-nav-item active"><i>🏠</i><span>Home</span></div>
+    <div class="mobile-nav-item"><i>📊</i><span>Scenarios</span></div>
+    <div class="mobile-nav-item"><i>⚙️</i><span>Settings</span></div>
+    <div class="mobile-nav-item"><i>👤</i><span>Profile</span></div>
+    <div class="mobile-nav-item"><i>❓</i><span>Help</span></div>
+  </div>
+
+  <script>
+    const editBtn = document.getElementById('editBtn');
+    const formInputs = document.querySelectorAll('#profileForm input, #profileForm select');
+    const userNameEl = document.getElementById('userName');
+    const userEmailEl = document.getElementById('userEmail');
+    const primaryEmailEl = document.getElementById('primaryEmail');
+
+    let isEditing = false;
+
+    editBtn.addEventListener('click', () => {
+      isEditing = !isEditing;
+
+      if (isEditing) {
+       
+        editBtn.textContent = 'Save';
+        editBtn.classList.remove('edit-btn');
+        editBtn.classList.add('save-btn');
+
+        formInputs.forEach(el => {
+          el.removeAttribute('readonly');
+          el.removeAttribute('disabled');
+        });
+
+
+        document.getElementById('fullName').focus();
+      } else {
+   
+        const fullName = document.getElementById('fullName').value;
+        const nickName = document.getElementById('nickName').value;
+
+        userNameEl.textContent = fullName;
+        primaryEmailEl.textContent = fullName.toLowerCase().replace(/\s+/g, '.') + '@gmail.com';
+        userEmailEl.textContent = primaryEmailEl.textContent;
+
+        editBtn.textContent = 'Edit';
+        editBtn.classList.remove('save-btn');
+        editBtn.classList.add('edit-btn');
+
+        formInputs.forEach(el => {
+          el.setAttribute('readonly', true);
+          el.setAttribute('disabled', true);
+        });
+
+        editBtn.textContent = 'Saved!';
+        setTimeout(() => {
+          if (!isEditing) editBtn.textContent = 'Edit';
+        }, 1000);
+      }
+    });
+
+    const emailList = document.getElementById('emailList');
+    const addEmailBtn = document.getElementById('addEmailBtn');
+    let emailCounter = 1;
+
+    addEmailBtn.addEventListener('click', () => {
+      const emailId = `email-${Date.now()}-${++emailCounter}`;
+
+      const emailItem = document.createElement('div');
+      emailItem.className = 'email-item';
+      emailItem.innerHTML = `
+        <input type="email" placeholder="Enter new email" style="flex:1; margin-right:12px;" />
+        <div class="email-actions">
+          <button class="btn-icon save-email" title="Save">✓</button>
+          <button class="btn-icon delete-email" title="Cancel">×</button>
+        </div>
+      `;
+
+      emailList.appendChild(emailItem);
+
+      const input = emailItem.querySelector('input');
+      const saveBtn = emailItem.querySelector('.save-email');
+      const deleteBtn = emailItem.querySelector('.delete-email');
+
+      input.focus();
+
+      saveBtn.addEventListener('click', () => {
+        const email = input.value.trim();
+        if (!email || !email.includes('@')) {
+          alert('Please enter a valid email address.');
+          return;
+        }
+
+        emailItem.innerHTML = `
+          <span>📧 <strong>${email}</strong></span>
+          <span>Added just now</span>
+        `;
+        emailItem.style.background = '#e8f5e9';
+        emailItem.style.borderColor = '#4caf50';
+
+        setTimeout(() => {
+          emailItem.style.background = '';
+          emailItem.style.borderColor = '';
+        }, 1500);
+      });
+
+      deleteBtn.addEventListener('click', () => {
+        emailItem.remove();
+      });
+    });
+
+    document.querySelectorAll('.mobile-nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.mobile-nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
